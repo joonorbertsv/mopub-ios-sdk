@@ -77,21 +77,23 @@
 
 - (UIView *)retrieveAdViewWithError:(NSError **)error
 {
-    // We always return the same MPNativeView (self.associatedView) so we need to remove its subviews
-    // before attaching the new ad view to it.
-    [[self.associatedView subviews] makeObjectsPerformSelector:@selector(removeFromSuperview)];
-
     UIView *adView = [self.renderer retrieveViewWithAdapter:self.adAdapter error:error];
 
     if (adView) {
-        if (!self.hasAttachedToView) {
-            [self willAttachToView:self.associatedView];
-            self.hasAttachedToView = YES;
+        // Do not remove adView and add it back
+        if (![[self.associatedView subviews] containsObject:adView]) {
+            // We always return the same MPNativeView (self.associatedView) so we need to remove its subviews
+            // before attaching the new ad view to it.
+            [[self.associatedView subviews] makeObjectsPerformSelector:@selector(removeFromSuperview)];
+            
+            if (!self.hasAttachedToView) {
+                [self willAttachToView:self.associatedView];
+                self.hasAttachedToView = YES;
+            }
+
+            adView.frame = self.associatedView.bounds;
+            [self.associatedView addSubview:adView];
         }
-
-        adView.frame = self.associatedView.bounds;
-        [self.associatedView addSubview:adView];
-
         return self.associatedView;
     } else {
         return nil;

@@ -67,13 +67,15 @@
 
     self.adapter = adapter;
 
-    if ([self.renderingViewClass respondsToSelector:@selector(nibForAd)]) {
-        self.adView = (UIView<MPNativeAdRendering> *)[[[self.renderingViewClass nibForAd] instantiateWithOwner:nil options:nil] firstObject];
-    } else {
-        self.adView = [[self.renderingViewClass alloc] init];
+    // Only create a new adView if needed. Creation might be costly, especially if loaded from nib.
+    if (!self.adView) {
+        if ([self.renderingViewClass respondsToSelector:@selector(nibForAd)]) {
+            self.adView = (UIView<MPNativeAdRendering> *)[[[self.renderingViewClass nibForAd] instantiateWithOwner:nil options:nil] firstObject];
+        } else {
+            self.adView = [[self.renderingViewClass alloc] init];
+        }
+        self.adView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     }
-
-    self.adView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
 
     // We only load text here. We delay loading of images until the view is added to the view hierarchy
     // so we don't unnecessarily load images from the cache if the user is scrolling fast. So we will

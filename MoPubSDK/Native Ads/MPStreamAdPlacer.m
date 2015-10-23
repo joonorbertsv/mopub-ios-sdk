@@ -106,14 +106,16 @@ static const NSUInteger kIndexPathItemIndex = 1;
         return;
     }
 
-    // Remove any old native ad views from the view prior to adding the new ad view as a sub view.
-    for (UIView *subview in view.subviews) {
-        if ([subview isKindOfClass:[MPNativeView class]]) {
-            [subview removeFromSuperview];
+    UIView *adView = [adData.ad retrieveAdViewWithError:nil];
+    // Make sure the same adView is not removed and added back
+    if (![view.subviews containsObject:adView]) {
+        // Remove any old native ad views from the view prior to adding the new ad view as a sub view.
+        for (UIView *subview in view.subviews) {
+            if ([subview isKindOfClass:[MPNativeView class]]) {
+                [subview removeFromSuperview];
+            }
         }
     }
-
-    [view addSubview:[adData.ad retrieveAdViewWithError:nil]];
 
     CGSize adSize = [self sizeForAd:adData.ad withMaximumWidth:view.bounds.size.width andIndexPath:indexPath];
     [adData.ad updateAdViewSize:adSize];
