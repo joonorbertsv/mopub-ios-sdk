@@ -61,6 +61,13 @@
                     BOOL validImageDownloaded = data != nil;
                     if (validImageDownloaded) {
                         UIImage *downloadedImage = [UIImage imageWithData:data];
+                        // By default, the image data isn't decompressed until set on a UIImageView, on the main thread. This
+                        // can result in poor scrolling performance. To fix this, we force decompression in the background before
+                        // caching it.
+                        UIGraphicsBeginImageContext(CGSizeMake(1, 1));
+                        [downloadedImage drawAtPoint:CGPointZero];
+                        UIGraphicsEndImageContext();
+                        data = UIImagePNGRepresentation(downloadedImage);
                         BOOL validImageSize = downloadedImage.size.width * downloadedImage.size.height <= kMaxAllowedUIImageSize;
                         if (downloadedImage != nil && validImageSize) {
                             [[MPNativeCache sharedCache] storeData:data forKey:imageURL.absoluteString];

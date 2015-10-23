@@ -48,13 +48,6 @@
         UIImage *image = [UIImage imageWithData:cachedImageData];
 
         if (image) {
-            // By default, the image data isn't decompressed until set on a UIImageView, on the main thread. This
-            // can result in poor scrolling performance. To fix this, we force decompression in the background before
-            // assignment to a UIImageView.
-            UIGraphicsBeginImageContext(CGSizeMake(1, 1));
-            [image drawAtPoint:CGPointZero];
-            UIGraphicsEndImageContext();
-
             [self safeMainQueueSetImage:image intoImageView:imageView];
         } else if (imageURL) {
             MPLogDebug(@"Cache miss on %@. Re-downloading...", imageURL);
